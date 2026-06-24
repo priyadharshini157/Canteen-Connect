@@ -210,9 +210,6 @@ async def verify_qr(req: QRVerifyRequest):
     if order["status"] == "Completed":
         raise HTTPException(status_code=400, detail="Order has already been collected")
         
-    if order["status"] != "Ready":
-        raise HTTPException(status_code=400, detail=f"Order is not ready yet. Current status: {order['status']}")
-        
     # Mark as collected
     updated_order = await db.orders.find_one_and_update(
         {"_id": order["_id"]},
