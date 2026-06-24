@@ -29,4 +29,21 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Automatically log out if the token is expired (401 Unauthorized)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            console.error("Token expired or invalid. Auto-logging out.");
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            // Only redirect if not already on the login page to prevent loops
+            if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;
