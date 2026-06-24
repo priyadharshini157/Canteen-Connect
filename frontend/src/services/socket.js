@@ -1,3 +1,17 @@
+const getWsUrl = () => {
+    if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
+    
+    let apiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+    if (!apiUrl) return "ws://localhost:8000/ws/tokens";
+
+    // Convert http(s) to ws(s)
+    let wsUrl = apiUrl.replace(/^http/, 'ws');
+    // Remove trailing /api and append /ws/tokens
+    wsUrl = wsUrl.replace(/\/api\/?$/, '');
+    
+    return `${wsUrl}/ws/tokens`;
+};
+
 class SocketService {
     constructor() {
         this.socket = null;
@@ -5,8 +19,8 @@ class SocketService {
         this.reconnectTimeout = null;
         this.intentionalDisconnect = false;
         
-        // Fallback to localhost if the env variable is missing
-        this.wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/tokens";
+        // Dynamically calculate the websocket URL based on the API URL
+        this.wsUrl = getWsUrl();
     }
 
     connect() {
