@@ -1,9 +1,14 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-    const url = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+    let url = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
     if (!url) {
         console.error("CRITICAL ERROR: Backend URL is not defined in Vercel Environment Variables! You must configure it and click REDEPLOY.");
+        return "/api"; // fallback
+    }
+    // Automatically append /api if the user forgot it
+    if (!url.endsWith('/api')) {
+        url = url.replace(/\/+$/, '') + '/api';
     }
     return url;
 };

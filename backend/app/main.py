@@ -4,10 +4,17 @@ from app.routes import live_token, auth, menu, orders # Assuming you create thes
 
 app = FastAPI(title="Canteen Order System")
 
+from app.config import settings
+
 # Configure CORS for React Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Default Vite port
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:5174",
+        "https://food-canteen-connect.vercel.app",
+        settings.FRONTEND_URL
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
