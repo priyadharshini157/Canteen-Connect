@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+    const url = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+    if (!url) {
+        console.error("CRITICAL ERROR: Backend URL is not defined in Vercel Environment Variables! You must configure it and click REDEPLOY.");
+    }
+    return url;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     }
