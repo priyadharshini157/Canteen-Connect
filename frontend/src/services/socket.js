@@ -6,8 +6,10 @@ const getWsUrl = () => {
 
     // Convert http(s) to ws(s)
     let wsUrl = apiUrl.replace(/^http/, 'ws');
-    // Remove trailing /api and append /ws/tokens
+    
+    // Remove trailing /api AND any trailing slashes to prevent double-slashes
     wsUrl = wsUrl.replace(/\/api\/?$/, '');
+    wsUrl = wsUrl.replace(/\/+$/, '');
     
     return `${wsUrl}/ws/tokens`;
 };
