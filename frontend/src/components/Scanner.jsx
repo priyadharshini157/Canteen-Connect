@@ -1,54 +1,60 @@
-import { useEffect, useRef, useState } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useEffect, useState, useRef } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
 import api from '../services/api';
 
 export default function Scanner() {
     const [scanResult, setScanResult] = useState(null);
     const [error, setError] = useState(null);
-    const scannerRef = useRef(null);
+    const isScanningRef = useRef(false);
 
     useEffect(() => {
-        const scanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            false
-        );
-        scannerRef.current = scanner;
+        let html5QrCode;
 
-        scanner.render(onScanSuccess, onScanFailure);
+        if (!scanResult && !error) {
+            html5QrCode = new Html5Qrcode("reader");
+            isScanningRef.current = false;
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Force rear camera on mobile
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                async (decodedText) => {
+                    // Success callback
+                    if (isScanningRef.current) return; // Prevent double-scans
+                    isScanningRef.current = true;
+                    
+                    // Stop camera immediately upon successful read
+                    try {
+                        await html5QrCode.stop();
+                    } catch(e) { console.error(e); }
+
+                    try {
+                        const res = await api.post('/orders/verify_qr', { qr_token: decodedText });
+                        setScanResult(res.data);
+                        setError(null);
+                    } catch (err) {
+                        setError(err.response?.data?.detail || "Failed to verify QR code.");
+                        setScanResult(null);
+                    }
+                },
+                (errorMessage) => {
+                    // Ignore ongoing background scan errors
+                }
+            ).catch(err => {
+                console.error("Camera start error:", err);
+                setError("Camera access denied or unavailable. Please check your browser permissions to allow camera access.");
+            });
+        }
 
         return () => {
-            scanner.clear().catch(error => {
-                console.error("Failed to clear html5QrcodeScanner. ", error);
-            });
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(console.error);
+            }
         };
-    }, []);
-
-    async function onScanSuccess(decodedText) {
-        if (scannerRef.current) {
-            scannerRef.current.clear();
-        }
-
-        try {
-            const res = await api.post('/orders/verify_qr', { qr_token: decodedText });
-            setScanResult(res.data);
-            setError(null);
-        } catch (err) {
-            setError(err.response?.data?.detail || "Failed to verify QR code.");
-            setScanResult(null);
-        }
-    }
-
-    function onScanFailure(error) {
-        // handle scan failure, usually better to ignore and keep scanning.
-    }
+    }, [scanResult, error]);
 
     const resetScanner = () => {
         setScanResult(null);
         setError(null);
-        if (scannerRef.current) {
-            scannerRef.current.render(onScanSuccess, onScanFailure);
-        }
     };
 
     return (
@@ -56,7 +62,10 @@ export default function Scanner() {
             <h3 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">Collection Scanner</h3>
             
             {!scanResult && !error && (
-                <div id="reader" className="w-full overflow-hidden rounded-xl border-2 border-slate-200"></div>
+                <div>
+                    <p className="text-center text-sm text-slate-500 mb-4 animate-pulse">Requesting camera access...</p>
+                    <div id="reader" className="w-full overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-50 min-h-[250px]"></div>
+                </div>
             )}
 
             {scanResult && (
