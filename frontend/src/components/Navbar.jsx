@@ -1,23 +1,32 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Navbar() {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
+        setIsMobileMenuOpen(false);
         navigate('/login');
     };
+
+    const closeMenu = () => setIsMobileMenuOpen(false);
 
     return (
         <nav className="bg-slate-800 text-white shadow-lg sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex-shrink-0">
-                        <span className="font-bold text-xl tracking-tight">Smart Canteen</span>
+                        <Link to="/" onClick={closeMenu} className="font-bold text-xl tracking-tight text-white hover:text-blue-300 transition-colors">
+                            Smart Canteen
+                        </Link>
                     </div>
+                    
+                    {/* Desktop Menu */}
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-center space-x-6">
                             {user && (
@@ -54,8 +63,59 @@ export default function Navbar() {
                             )}
                         </div>
                     </div>
+
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden flex items-center">
+                        <button 
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="text-slate-300 hover:text-white focus:outline-none"
+                        >
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {isMobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Mobile Menu Dropdown */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden bg-slate-700 border-t border-slate-600">
+                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        {user && (
+                            <>
+                                <Link to="/dashboard" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-600">Dashboard</Link>
+                                <Link to="/menu" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-600">Menu</Link>
+                                <Link to="/history" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-blue-300 hover:bg-slate-600">My Orders</Link>
+                            </>
+                        )}
+                        {user?.role === 'admin' && (
+                            <>
+                                <Link to="/admin" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-amber-400 hover:bg-slate-600">Admin Panel</Link>
+                                <Link to="/kds" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-emerald-400 hover:bg-slate-600">KDS</Link>
+                            </>
+                        )}
+                        
+                        {user ? (
+                            <div className="mt-4 pt-4 border-t border-slate-600">
+                                <Link to="/profile" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-600">My Profile</Link>
+                                <button onClick={handleLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-bold text-rose-400 hover:bg-slate-600 mt-2">
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="mt-4 pt-4 border-t border-slate-600">
+                                <Link to="/login" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-600">Login</Link>
+                                <Link to="/register" onClick={closeMenu} className="block px-3 py-2 rounded-md text-base font-bold text-emerald-400 hover:bg-slate-600">Register</Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }
