@@ -32,10 +32,10 @@ export default function Login() {
                 <h2 className="text-3xl font-bold text-slate-800 text-center mb-6">Welcome Back</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-1">Email Address</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Email or Username</label>
                         <input 
-                            type="email" 
-                            placeholder="you@example.com" 
+                            type="text" 
+                            placeholder="priya07admin@gmail.com or priya07admin" 
                             value={email} 
                             onChange={e => setEmail(e.target.value)} 
                             required 

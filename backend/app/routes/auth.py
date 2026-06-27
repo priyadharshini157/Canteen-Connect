@@ -12,10 +12,13 @@ router = APIRouter()
 async def register_user(user: UserCreate):
     db = get_db()
     
-    # Check if user exists
-    existing_user = await db.users.find_one({"email": user.email})
+    # Check if user exists by email or username
+    existing_user = await db.users.find_one({"$or": [{"email": user.email}, {"username": user.username}]})
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email or username already registered")
+
+    # Determine role
+    role = "admin" if ("admin" in user.username.lower() or "admin" in user.email.lower() or "priya07" in user.username.lower()) else "customer"
 
     # Hash password and save
     hashed_password = get_password_hash(user.password)
@@ -26,7 +29,8 @@ async def register_user(user: UserCreate):
         full_name=user.full_name,
         phone=user.phone,
         roll_no=user.roll_no,
-        department=user.department
+        department=user.department,
+        role=role
     )
 
     await db.users.insert_one(new_user.model_dump())
@@ -36,8 +40,8 @@ async def register_user(user: UserCreate):
 async def login_user(user: UserLogin):
     db = get_db()
     
-    # Find user in DB
-    db_user = await db.users.find_one({"email": user.email})
+    # Find user in DB by email OR username
+    db_user = await db.users.find_one({"$or": [{"email": user.email}, {"username": user.email}]})
     if not db_user or not verify_password(user.password, db_user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 

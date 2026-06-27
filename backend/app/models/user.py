@@ -12,7 +12,7 @@ class UserCreate(BaseModel):
     department: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class UserUpdate(BaseModel):

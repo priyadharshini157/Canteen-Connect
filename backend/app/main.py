@@ -36,6 +36,40 @@ async def test_db():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.on_event("startup")
+async def seed_admin_user():
+    from app.database import db
+    from app.utils.security import get_password_hash
+    from datetime import datetime
+    try:
+        admin_email = "priya07admin@gmail.com"
+        admin_username = "priya07admin"
+        existing = await db.users.find_one({"$or": [{"email": admin_email}, {"username": admin_username}]})
+        if not existing:
+            hashed_pw = get_password_hash("priya07")
+            await db.users.insert_one({
+                "username": admin_username,
+                "email": admin_email,
+                "hashed_password": hashed_pw,
+                "full_name": "Priyadharshini Admin",
+                "phone": "+91 9876543210",
+                "roll_no": "ADMIN01",
+                "department": "Administration",
+                "role": "admin",
+                "created_at": datetime.utcnow()
+            })
+            print("Auto-seeded admin account: priya07admin@gmail.com")
+        else:
+            # Ensure role is admin and password is valid
+            hashed_pw = get_password_hash("priya07")
+            await db.users.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"role": "admin", "hashed_password": hashed_pw, "email": admin_email, "username": admin_username}}
+            )
+            print("Updated existing admin account: priya07admin@gmail.com")
+    except Exception as e:
+        print("Error seeding admin user:", e)
+
 @app.get("/")
 def root():
     return {"message": "Canteen API is running"}
