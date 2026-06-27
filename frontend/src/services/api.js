@@ -33,7 +33,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
+        const isLoginRequest = error.config && error.config.url && error.config.url.includes('/auth/login');
+        if (error.response && error.response.status === 401 && !isLoginRequest) {
             console.error("Token expired or invalid. Auto-logging out.");
             localStorage.removeItem('token');
             localStorage.removeItem('role');
