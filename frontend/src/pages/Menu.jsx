@@ -10,26 +10,55 @@ export default function Menu() {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
 
-    const fallbackItems = [
+    const defaultItems = [
         {"name": "Chicken Rice", "price": 90.0, "category": "Lunch", "image_url": "/images/chicken_rice.png"},
         {"name": "Noodles", "price": 70.0, "category": "Lunch", "image_url": "/images/noodles.png"},
         {"name": "Veg Rice", "price": 60.0, "category": "Lunch", "image_url": "/images/veg_rice.png"},
         {"name": "Veg Noodles", "price": 65.5, "category": "Lunch", "image_url": "/images/veg_noodles.png"},
         {"name": "Egg Noodles", "price": 80.5, "category": "Lunch", "image_url": "/images/egg_noodles.png"},
         {"name": "Parotta", "price": 15.0, "category": "Dinner", "image_url": "/images/paroto.png"},
-        {"name": "Curd Rice", "price": 50.0, "category": "Lunch", "image_url": "/images/curd_rice.png"}
+        {"name": "Curd Rice", "price": 50.0, "category": "Lunch", "image_url": "/images/curd_rice.png"},
+        {"name": "Rose Milk", "price": 30.0, "category": "Drinks", "image_url": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80"},
+        {"name": "Tea", "price": 10.0, "category": "Drinks", "image_url": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80"},
+        {"name": "Cold Coffee", "price": 40.0, "category": "Drinks", "image_url": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=600&q=80"}
     ];
 
     useEffect(() => {
         api.get('/menu').then(res => {
-            if (res.data && res.data.length > 0) {
-                setMenuItems(res.data);
-            } else {
-                setMenuItems(fallbackItems);
-            }
+            const dbItems = res.data || [];
+            
+            // Create a map of DB items by lowercased name
+            const dbMap = new Map();
+            dbItems.forEach(item => {
+                if (item.name) dbMap.set(item.name.toLowerCase().trim(), item);
+            });
+
+            // Merge default items with DB items
+            const merged = defaultItems.map(def => {
+                const found = dbMap.get(def.name.toLowerCase().trim());
+                if (found) {
+                    dbMap.delete(def.name.toLowerCase().trim());
+                    return {
+                        ...def,
+                        ...found,
+                        image_url: found.image_url || def.image_url
+                    };
+                }
+                return def;
+            });
+
+            // Append any extra manually added items from DB that weren't in defaultItems
+            dbMap.forEach(extra => {
+                merged.push({
+                    ...extra,
+                    image_url: extra.image_url || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
+                });
+            });
+
+            setMenuItems(merged);
         }).catch(err => {
-            console.error("Database connection failed, using fallback UI items.", err);
-            setMenuItems(fallbackItems);
+            console.error("Database connection failed, using default UI items.", err);
+            setMenuItems(defaultItems);
         });
     }, []);
 
