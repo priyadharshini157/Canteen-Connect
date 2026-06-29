@@ -67,8 +67,25 @@ async def seed_admin_user():
                 {"$set": {"role": "admin", "hashed_password": hashed_pw, "email": admin_email, "username": admin_username}}
             )
             print("Updated existing admin account: priya07admin@gmail.com")
+
+        # Auto-seed default food menu items
+        default_menu = [
+            {"name": "Chicken Rice", "price": 90.0, "category": "Lunch", "image_url": "/images/chicken_rice.png", "is_available": True},
+            {"name": "Noodles", "price": 70.0, "category": "Lunch", "image_url": "/images/noodles.png", "is_available": True},
+            {"name": "Veg Rice", "price": 60.0, "category": "Lunch", "image_url": "/images/veg_rice.png", "is_available": True},
+            {"name": "Veg Noodles", "price": 75.0, "category": "Lunch", "image_url": "/images/veg_noodles.png", "is_available": True},
+            {"name": "Egg Noodles", "price": 80.0, "category": "Lunch", "image_url": "/images/egg_noodles.png", "is_available": True},
+            {"name": "Parotta", "price": 20.0, "category": "Dinner", "image_url": "/images/paroto.png", "is_available": True},
+            {"name": "Curd Rice", "price": 50.0, "category": "Lunch", "image_url": "/images/curd_rice.png", "is_available": True},
+            {"name": "Rose Milk", "price": 30.0, "category": "Drinks", "image_url": "https://res.cloudinary.com/db5jefiqz/image/upload/v1782276231/i5o8ecrih2bcy6pducwz.webp", "is_available": True},
+            {"name": "Tea", "price": 15.0, "category": "Drinks", "image_url": "https://res.cloudinary.com/db5jefiqz/image/upload/v1782296871/lrm7qqy5grcmtdoi8kce.jpg", "is_available": True}
+        ]
+        for item in default_menu:
+            if not await db.menu.find_one({"name": item["name"]}):
+                await db.menu.insert_one(item)
+        print("Auto-seeded food menu items successfully.")
     except Exception as e:
-        print("Error seeding admin user:", e)
+        print("Error seeding admin user or menu:", e)
 
 @app.get("/")
 def root():
