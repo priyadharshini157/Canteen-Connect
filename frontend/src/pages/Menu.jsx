@@ -144,89 +144,117 @@ export default function Menu() {
     });
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
-            
-            {/* Main Menu Section */}
-            <div className="flex-1">
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-                    <h2 className="text-3xl font-bold text-slate-800">Today's Menu</h2>
-                    
-                    {/* Search and Filter UI */}
-                    <div className="flex gap-4 w-full sm:w-auto">
-                        <input 
-                            type="text" 
-                            placeholder="Search food..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
-                        />
-                        <select 
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                        >
-                            {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredItems.map((item, idx) => (
-                        <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col group">
-                            {item.image_url ? (
-                                <img src={item.image_url} alt={item.name} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
-                            ) : (
-                                <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
-                                    <span className="text-slate-400 font-medium">No Image</span>
-                                </div>
-                            )}
-                            <div className="p-5 flex flex-col flex-grow bg-white z-10">
-                                <h3 className="text-lg font-bold text-slate-800 mb-1">{item.name}</h3>
-                                <p className="text-emerald-500 font-bold text-lg mb-4">₹{item.price.toFixed(2)}</p>
-                                <button onClick={() => addToCart(item)} className="mt-auto w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-sm hover:shadow">
-                                    Add to Cart
-                                </button>
-                            </div>
+        <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-amber-50/40 via-orange-50/40 to-red-50/40 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-8">
+                
+                {/* Main Menu Section */}
+                <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-orange-100">
+                        <div>
+                            <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2.5">
+                                <span className="text-4xl animate-bounce">🍕</span> Today's Canteen Menu
+                            </h2>
+                            <p className="text-slate-500 text-sm font-medium mt-1">Freshly prepared hot meals & refreshing beverages</p>
                         </div>
-                    ))}
-                    {filteredItems.length === 0 && <p className="text-slate-500 col-span-full text-center py-10 text-lg">No food items found matching your criteria.</p>}
-                </div>
-            </div>
+                        
+                        {/* Search and Filter UI */}
+                        <div className="flex gap-3 w-full sm:w-auto">
+                            <div className="relative flex-1 sm:flex-none">
+                                <span className="absolute left-3 top-3 text-slate-400">🔍</span>
+                                <input 
+                                    type="text" 
+                                    placeholder="Search delicious food..." 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white shadow-inner font-medium text-slate-800 min-w-[220px]"
+                                />
+                            </div>
+                            <select 
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                className="px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white font-bold text-slate-700 shadow-sm cursor-pointer"
+                            >
+                                {categories.map(cat => <option key={cat} value={cat}>{cat === 'All' ? '🍽️ All Categories' : cat}</option>)}
+                            </select>
+                        </div>
+                    </div>
 
-            {/* Floating Cart Sidebar */}
-            {cart.length > 0 && (
-                <div className="w-full md:w-80 lg:w-96 bg-white p-6 rounded-2xl shadow-xl h-fit md:sticky top-24 border border-slate-100 shrink-0">
-                    <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-4 mb-5">Your Cart</h3>
-                    
-                    <div className="flex flex-col gap-4">
-                        {cart.map(item => (
-                            <div key={item.name} className="flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold text-sm">{item.quantity}x</span>
-                                    <span className="font-medium text-slate-700">{item.name}</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredItems.map((item, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-orange-100/80 flex flex-col group transform hover:-translate-y-1">
+                                <div className="relative overflow-hidden h-48">
+                                    {item.image_url ? (
+                                        <img src={item.image_url} alt={item.name} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    ) : (
+                                        <div className="w-full h-48 bg-amber-100 flex items-center justify-center">
+                                            <span className="text-amber-500 font-bold text-lg">🍔 No Image</span>
+                                        </div>
+                                    )}
+                                    <span className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-amber-300 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                                        {item.category || 'Food'}
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
-                                    <button onClick={() => removeFromCart(item.name)} className="text-rose-400 hover:text-rose-600 font-bold p-1 transition-colors">✕</button>
+                                <div className="p-5 flex flex-col flex-grow bg-white z-10">
+                                    <h3 className="text-xl font-extrabold text-slate-800 mb-1 group-hover:text-orange-600 transition-colors">{item.name}</h3>
+                                    <p className="text-emerald-600 font-black text-2xl mb-4">₹{item.price.toFixed(2)}</p>
+                                    <button onClick={() => addToCart(item)} className="mt-auto w-full py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-extrabold rounded-xl transition-all shadow-md hover:shadow-orange-500/25 active:scale-95 flex items-center justify-center gap-2 text-base">
+                                        <span>Add to Cart</span> <span className="text-lg">➕</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}
+                        {filteredItems.length === 0 && (
+                            <div className="col-span-full bg-white/80 rounded-2xl p-12 text-center border border-orange-100">
+                                <span className="text-5xl block mb-3">🍽️</span>
+                                <p className="text-slate-600 font-bold text-xl">No food items found matching your criteria.</p>
+                                <p className="text-slate-400 text-sm mt-1">Try searching for something else like Rice, Noodles, or Drinks!</p>
+                            </div>
+                        )}
                     </div>
-
-                    <div className="mt-6 pt-5 border-t border-slate-200 flex justify-between items-center text-lg">
-                        <span className="font-bold text-slate-800">Total:</span>
-                        <span className="font-black text-emerald-500 text-2xl">₹{cartTotal.toFixed(2)}</span>
-                    </div>
-
-                    <button 
-                        onClick={handleCheckout} 
-                        disabled={isProcessing}
-                        className={`w-full mt-6 text-white py-3.5 rounded-xl font-bold text-lg transition-all shadow-md ${isProcessing ? 'bg-slate-400 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 hover:shadow-lg transform hover:-translate-y-0.5'}`}
-                    >
-                        {isProcessing ? 'Processing...' : 'Pay with Razorpay'}
-                    </button>
                 </div>
-            )}
+
+                {/* Floating Cart Sidebar */}
+                {cart.length > 0 && (
+                    <div className="w-full md:w-80 lg:w-96 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl h-fit md:sticky top-24 border-2 border-orange-200 shrink-0 animate-fadeIn">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+                                <span>🛒</span> Your Cart
+                            </h3>
+                            <span className="bg-orange-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-full">
+                                {cart.reduce((a, b) => a + b.quantity, 0)} Items
+                            </span>
+                        </div>
+                        
+                        <div className="flex flex-col gap-3 max-h-[40vh] overflow-y-auto custom-scrollbar pr-1">
+                            {cart.map(item => (
+                                <div key={item.name} className="flex justify-between items-center bg-amber-50/50 p-3 rounded-xl border border-amber-100/60">
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-gradient-to-tr from-orange-500 to-amber-500 text-slate-950 px-2.5 py-1 rounded-lg font-black text-xs shadow-sm">{item.quantity}x</span>
+                                        <span className="font-bold text-slate-800 text-sm">{item.name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-black text-slate-700">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                        <button onClick={() => removeFromCart(item.name)} className="w-7 h-7 rounded-full bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white font-bold flex items-center justify-center transition-all text-xs">✕</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-6 pt-5 border-t-2 border-dashed border-slate-200 flex justify-between items-center">
+                            <span className="font-extrabold text-slate-700 text-lg">Total Amount:</span>
+                            <span className="font-black text-emerald-600 text-3xl tracking-tight">₹{cartTotal.toFixed(2)}</span>
+                        </div>
+
+                        <button 
+                            onClick={handleCheckout} 
+                            disabled={isProcessing}
+                            className={`w-full mt-6 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-2 ${isProcessing ? 'bg-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/30 transform hover:-translate-y-0.5 active:scale-95'}`}
+                        >
+                            <span>{isProcessing ? 'Processing Payment...' : 'Proceed to Pay ⚡'}</span>
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
